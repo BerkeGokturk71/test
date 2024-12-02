@@ -5,7 +5,7 @@ import 'package:tester/service/post_model.dart';
 
 class Service {
   final Dio _dio;
-  final String _baseUrl = "https://dorm-api.onrender.com/";
+  var date = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
   Service()
       : _dio = Dio(BaseOptions(baseUrl: "https://dorm-api.onrender.com/"));
@@ -34,7 +34,7 @@ class Service {
     return (currentHour >= 12) ? "Aksam" : "Kahvaltı";
   }
 
-  String getCurrentDate() {
-    return DateFormat('yyyy-MM-dd').format(DateTime.now());
+  String getCurrentDate(String date) {
+    return date;
   }
 }

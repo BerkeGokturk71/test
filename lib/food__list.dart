@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:tester/api_service.dart';
+import 'package:tester/date_foodlist.dart';
 import 'package:tester/service/post_model.dart';
+import 'package:intl/intl.dart';
 
 class AnaEkran extends StatefulWidget {
   @override
@@ -10,10 +12,13 @@ class AnaEkran extends StatefulWidget {
 class _AnaEkranState extends State<AnaEkran> {
   final TextStyle _yaziStili = TextStyle(color: Colors.white);
   final String tarihSec = "Tarih seçin";
-  final String sehirSec = "Şehir seçin";
+  final String sehirSec = "Şehir :";
+  final String _turkishDate = DateFoodTurkish().dateTurkishReturn();
   final Service _service = Service();
   List<PostModel>? _items;
-  bool _isLoading = false;
+  bool _isLoading =
+      false; // Seçilen öğün bilgisi ("Kahvaltı" veya "Akşam Yemeği")
+  String _selectedDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
   String?
       _selectedMeal; // Seçilen öğün bilgisi ("Kahvaltı" veya "Akşam Yemeği")
 
@@ -28,10 +33,9 @@ class _AnaEkranState extends State<AnaEkran> {
       _isLoading = true;
     });
 
-    final currentDate = _service.getCurrentDate();
     _selectedMeal = _service.getCurrentMeal(); // Öğün bilgisini alıyoruz.
 
-    final items = await _service.fetchPostItems(currentDate, _selectedMeal!);
+    final items = await _service.fetchPostItems(_selectedDate, _selectedMeal!);
 
     setState(() {
       _items = items;
@@ -39,10 +43,22 @@ class _AnaEkranState extends State<AnaEkran> {
     });
   }
 
+  void _updateDate(int days) {
+    setState(() {
+      final currentDate = DateFormat('yyyy-MM-dd')
+          .parse(_selectedDate); // String'i DateTime'a çevir.
+      final newDate = currentDate.add(Duration(days: days)); // Gün ekle/çıkar.
+      _selectedDate = DateFormat('yyyy-MM-dd')
+          .format(newDate); // Güncellenen tarihi String'e çevir.
+    });
+    _fetchData(); // Tarih değiştiği anda API çağrısını tekrar tetikle.
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
+    const String _il = "Muğla";
 
     return Scaffold(
       body: Padding(
@@ -50,18 +66,13 @@ class _AnaEkranState extends State<AnaEkran> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            butonOlustur(
-              context,
-              tarihSec,
-              "24 Sep 2024",
-              _yaziStili,
-              screenWidth,
-            ),
             SizedBox(height: screenHeight * 0.02),
-            butonOlustur(
+            dateChangeArea(context, _turkishDate, _yaziStili, screenWidth),
+            SizedBox(height: screenHeight * 0.02),
+            sehirSecimi(
               context,
               sehirSec,
-              "Muğla",
+              _il,
               _yaziStili,
               screenWidth,
             ),
@@ -149,7 +160,7 @@ class _AnaEkranState extends State<AnaEkran> {
     );
   }
 
-  Widget butonOlustur(BuildContext context, String etiket, String deger,
+  Widget sehirSecimi(BuildContext context, String etiket, String deger,
       TextStyle yaziStili, double screenWidth) {
     final textStyle = Theme.of(context).textTheme.bodyMedium;
     return GestureDetector(
@@ -168,6 +179,36 @@ class _AnaEkranState extends State<AnaEkran> {
           children: [
             Text(etiket, style: textStyle),
             Text(deger, style: textStyle),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget dateChangeArea(BuildContext context, String deger, TextStyle yaziStili,
+      double screenWidth) {
+    final textStyle = Theme.of(context).textTheme.bodyMedium;
+    return GestureDetector(
+      onTap: () {},
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          vertical: screenWidth * 0.04,
+          horizontal: screenWidth * 0.03,
+        ),
+        decoration: BoxDecoration(
+          color: Colors.grey[850],
+          borderRadius: BorderRadius.circular(screenWidth * 0.02),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            IconButton(
+                onPressed: () => _updateDate(-1),
+                icon: Icon(Icons.arrow_back_outlined)),
+            Text(_selectedDate, style: textStyle),
+            IconButton(
+                onPressed: () => _updateDate(1),
+                icon: Icon(Icons.arrow_forward_outlined))
           ],
         ),
       ),
