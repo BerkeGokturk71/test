@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:tester/camasir.dart';
 import 'package:tester/food__list.dart';
+import 'package:tester/login/login.dart';
+import 'package:tester/profile/profile_page.dart';
+import 'cache/shared_cache.dart';
 import 'google_auth.dart';
+
 //ss
 class HomeScreen extends StatefulWidget {
   @override
@@ -10,12 +14,29 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
-
+  late final SharedManager _manager;
+  List<String>? _cachedPassword;
   final List<Widget> _pages = [
     Center(child: AnaEkran()),
     CamasirScreen(),
-    Center(child: LoginPage()),
+    ProfilePage(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _manager = SharedManager();
+    _loadCachedPassword();
+  }
+
+  Future<void> _loadCachedPassword() async {
+    await _manager.init(); // SharedPreferences başlat
+    List<String>? cachedData = await _manager.getStringList(SharedKeys.counter);
+
+    setState(() {
+      _cachedPassword = cachedData;
+    });
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -45,8 +66,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    List<String>? _cachedPassword = _manager.getStringList(SharedKeys.counter);
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         // AppBar gölgesini kaldırmak için
         title: const Text(
           textAlign: TextAlign.start,
@@ -59,6 +82,9 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         actions: [
+          _cachedPassword?[1] == null
+              ? loginButton()
+              : loginWelcomeText(_cachedPassword),
           IconButton(
             icon: Icon(Icons.notifications, color: Colors.white),
             onPressed: _onNotificationsPressed,
@@ -71,7 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: _pages[_selectedIndex], // Seçilen ekranı gösterir
           ),
           // Alt Bar
-          Container(
+          SizedBox(
             height: 60,
             child: BottomNavigationBar(
               backgroundColor: Colors.white10,
@@ -98,6 +124,32 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Text loginWelcomeText(List<String>? _cachedPassword) =>
+      Text("Hoşgeldiniz ${_cachedPassword?[1]}");
+
+  OutlinedButton loginButton() {
+    return OutlinedButton.icon(
+      style: OutlinedButton.styleFrom(
+        side: BorderSide(color: Colors.white), // Kenar çizgisi
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+      onPressed: () {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPageScreen()),
+          (Route<dynamic> route) => false,
+        );
+      },
+      icon: Icon(Icons.login, color: Colors.white),
+      label: Text(
+        "Giriş Yap",
+        style: TextStyle(color: Colors.white),
       ),
     );
   }

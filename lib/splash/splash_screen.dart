@@ -1,4 +1,7 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:tester/cache/shared_cache.dart';
+import 'package:tester/login/login.dart';
 import '../home_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -9,16 +12,37 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  late final AudioPlayer _audioPlayer;
+  late final SharedManager _manager;
+
   @override
   void initState() {
     super.initState();
-    // 3 saniye bekledikten sonra HomeScreen'e yönlendirme
+    _manager = SharedManager();
+    _audioPlayer = AudioPlayer();
+    _playSplashSound();
+    // 4 saniye bekledikten sonra HomeScreen'e yönlendirme
     Future.delayed(const Duration(seconds: 4), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => HomeScreen()),
-      );
+      if (_manager.getString(SharedKeys.counter) != null) {
+        print(_manager.getString(SharedKeys.counter));
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomeScreen()),
+        );
+      } else {
+        MaterialPageRoute(builder: (context) => LoginPageScreen());
+      }
     });
+  }
+
+  Future<void> _playSplashSound() async {
+    await _audioPlayer.play(AssetSource('normlifebebegim.mp3'));
+  }
+
+  @override
+  void dispose() {
+    _audioPlayer.dispose();
+    super.dispose();
   }
 
   @override
@@ -34,19 +58,19 @@ class _SplashScreenState extends State<SplashScreen> {
         ),
         child: Center(
           child: Column(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisSize: MainAxisSize.max, // Tüm boşlukları kullanabilir.
+            mainAxisAlignment: MainAxisAlignment.center, // Merkezde hizalama
             children: [
               Image.asset(
                 'lib/assets/dorm.png', // PNG dosya yolu
-                width: 350, // Görüntü genişliği
-                height: 250, // Görüntü yüksekliği
+                width: 450, // Daha makul bir genişlik
+                height: 450, // Daha makul bir yükseklik
               ),
-              SizedBox(height: 2),
               Text(
-                "DormLife",
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+                "Yurt Hayatınızı Kolaylaştırır...",
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontStyle: FontStyle.italic,
                   color: Colors.white,
                 ),
               ),

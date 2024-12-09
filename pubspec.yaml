@@ -40,6 +40,9 @@ dependencies:
   google_sign_in: ^6.2.2
   dio: ^5.7.0
   intl_utils: ^2.8.7
+  audioplayers: ^6.1.0
+  shared_preferences: ^2.3.3
+  lottie: ^3.2.0
 
 dev_dependencies:
   flutter_test:
@@ -66,6 +69,13 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
       - lib/assets/dorm.png
+      - assets/normlifebebegim.mp3
+      - assets/profile_lottie.json 
+      - assets/x_lottie.json 
+      - assets/instagram_lottie.json 
+      - assets/linkedin_lottie.json 
+      - assets/telegram_lottie.json 
+      - assets/share_lottie.json 
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

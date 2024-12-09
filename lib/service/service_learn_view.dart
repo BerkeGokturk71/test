@@ -1,7 +1,7 @@
 import 'package:intl/intl.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:tester/service/post_model.dart';
+import 'package:tester/model/post_model.dart';
 
 class ServiceLearn {
   List<PostModel>? _items;

@@ -8,35 +8,22 @@ class CamasirScreen extends StatefulWidget {
 }
 
 class _CamasirScreenState extends State<CamasirScreen> {
-  final TextEditingController username = TextEditingController();
-  final TextEditingController room = TextEditingController();
-  static final int _textlenght = 25;
-
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        children: [
-          TextField(
-            controller: username,
-            maxLength: _textlenght,
-            decoration: InputDecoration(
-                hintText: "username",
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                    borderSide: BorderSide(style: BorderStyle.solid))),
+    return Scaffold(
+      body: Center(
+        // Center the content vertically and horizontally
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 18),
+          child: Column(
+            mainAxisAlignment:
+                MainAxisAlignment.center, // Vertically center the text
+            children: [
+              Text("Bu Ekran Yapım Aşamasındadır"),
+              Text("Çamaşır Sırası Hizmetimiz Üzerinde Çalışıyoruz")
+            ],
           ),
-          TextField(
-            controller: room,
-            maxLength: _textlenght,
-            decoration: InputDecoration(
-                hintText: "username",
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                    borderSide: BorderSide(style: BorderStyle.solid))),
-          ),
-        ],
+        ),
       ),
     );
   }

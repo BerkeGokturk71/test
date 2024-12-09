@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
 import 'package:tester/home_screen.dart';
-import 'package:tester/service/service_learn_view.dart';
+import 'package:tester/profile/profile_page.dart';
 import 'package:tester/splash/splash_screen.dart';
 import 'firebase_options.dart';
 
@@ -27,8 +27,7 @@ class MyApp extends StatelessWidget {
               systemOverlayStyle: SystemUiOverlayStyle.light,
               elevation: 0,
               titleTextStyle: TextStyle())),
-      home: const SplashScreen(), // SplashScreen olarak başlatılıyor
+      home: SplashScreen(), // SplashScreen olarak başlatılıyor
     );
   }
 }
-

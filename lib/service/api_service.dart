@@ -1,10 +1,11 @@
 // service_learn.dart
 import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
-import 'package:tester/service/post_model.dart';
+import 'package:tester/model/post_model.dart';
 
 class Service {
   final Dio _dio;
+
   var date = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
   Service()
@@ -32,6 +33,10 @@ class Service {
   String getCurrentMeal() {
     final currentHour = DateTime.now().hour;
     return (currentHour >= 12) ? "Aksam" : "Kahvaltı";
+  }
+
+  String currentMeal(meal) {
+    return meal;
   }
 
   String getCurrentDate(String date) {

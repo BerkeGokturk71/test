@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:tester/api_service.dart';
+import 'package:tester/service/api_service.dart';
 import 'package:tester/date_foodlist.dart';
-import 'package:tester/service/post_model.dart';
+import 'package:tester/model/post_model.dart';
 import 'package:intl/intl.dart';
 
 class AnaEkran extends StatefulWidget {
@@ -19,6 +19,7 @@ class _AnaEkranState extends State<AnaEkran> {
   bool _isLoading =
       false; // Seçilen öğün bilgisi ("Kahvaltı" veya "Akşam Yemeği")
   String _selectedDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
   String?
       _selectedMeal; // Seçilen öğün bilgisi ("Kahvaltı" veya "Akşam Yemeği")
 
@@ -34,9 +35,21 @@ class _AnaEkranState extends State<AnaEkran> {
     });
 
     _selectedMeal = _service.getCurrentMeal(); // Öğün bilgisini alıyoruz.
-
     final items = await _service.fetchPostItems(_selectedDate, _selectedMeal!);
+    setState(() {
+      _items = items;
+      _isLoading = false;
+    });
+  }
 
+  Future<void> _fetchDataDate() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    _selectedMeal =
+        _service.currentMeal(_selectedMeal); // Öğün bilgisini alıyoruz.
+    final items = await _service.fetchPostItems(_selectedDate, _selectedMeal!);
     setState(() {
       _items = items;
       _isLoading = false;
@@ -144,8 +157,8 @@ class _AnaEkranState extends State<AnaEkran> {
                                   item.soup ?? 'Belirtilmedi'),
                               yemekDetaySatiri(Icons.rice_bowl, "Pilav",
                                   item.rice ?? 'Belirtilmedi'),
-                              yemekDetaySatiri(Icons.local_florist, "Salata",
-                                  item.salad ?? 'Belirtilmedi'),
+                              yemekDetaySatiri(Icons.food_bank_outlined,
+                                  "Salata", item.salad ?? 'Belirtilmedi'),
                               yemekDetaySatiri(Icons.breakfast_dining, "Ekmek",
                                   item.bread ?? 'Belirtilmedi'),
                               yemekDetaySatiri(Icons.water, "Su",
@@ -185,32 +198,37 @@ class _AnaEkranState extends State<AnaEkran> {
     );
   }
 
+  //Türkçe ye çevirip tarihi formatlar
+  String formatDate(String date) {
+    final DateTime parsedDate =
+        DateFormat('yyyy-MM-dd').parse(date); // Tarihi parse et
+    return DateFormat('d MMMM EEEE', 'tr_TR')
+        .format(parsedDate); // İstediğiniz formata dönüştür
+  }
+
   Widget dateChangeArea(BuildContext context, String deger, TextStyle yaziStili,
       double screenWidth) {
-    final textStyle = Theme.of(context).textTheme.bodyMedium;
-    return GestureDetector(
-      onTap: () {},
-      child: Container(
-        padding: EdgeInsets.symmetric(
-          vertical: screenWidth * 0.04,
-          horizontal: screenWidth * 0.03,
-        ),
-        decoration: BoxDecoration(
-          color: Colors.grey[850],
-          borderRadius: BorderRadius.circular(screenWidth * 0.02),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            IconButton(
-                onPressed: () => _updateDate(-1),
-                icon: Icon(Icons.arrow_back_outlined)),
-            Text(_selectedDate, style: textStyle),
-            IconButton(
-                onPressed: () => _updateDate(1),
-                icon: Icon(Icons.arrow_forward_outlined))
-          ],
-        ),
+    final textStyle = Theme.of(context).textTheme.bodyLarge;
+    return Container(
+      padding: EdgeInsets.symmetric(
+        vertical: screenWidth * 0.04,
+        horizontal: screenWidth * 0.03,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.grey[850],
+        borderRadius: BorderRadius.circular(screenWidth * 0.02),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          IconButton(
+              onPressed: () => _updateDate(-1),
+              icon: Icon(Icons.arrow_back_outlined)),
+          Text(formatDate(_selectedDate), style: textStyle),
+          IconButton(
+              onPressed: () => _updateDate(1),
+              icon: Icon(Icons.arrow_forward_outlined))
+        ],
       ),
     );
   }
@@ -218,26 +236,36 @@ class _AnaEkranState extends State<AnaEkran> {
   Widget basitButon(BuildContext context, String etiket, TextStyle yaziStili,
       double screenWidth, String? selectedMeal) {
     final textStyle = Theme.of(context).textTheme.bodyLarge;
-    final isSelected = etiket == selectedMeal; // Seçili öğün kontrolü
+    etiket = etiket == "Akşam Yemeği" ? etiket = "Aksam" : etiket;
+    bool isSelected = etiket == selectedMeal;
+    //print("isSelected = $isSelected"); // Seçili öğün kontrolü
 
+    final backgroundColor = etiket == 'Kahvaltı'
+        ? (isSelected ? Colors.white : Colors.grey[850])
+        : (isSelected ? Colors.white : Colors.grey[850]);
+
+    final textColor = etiket == 'Kahvaltı'
+        ? (isSelected ? Colors.black : Colors.white)
+        : (isSelected ? Colors.black : Colors.white);
     return Expanded(
       child: GestureDetector(
         onTap: () {
           setState(() {
             _selectedMeal = etiket;
+            _fetchDataDate();
           });
         },
         child: Container(
           padding: EdgeInsets.symmetric(vertical: screenWidth * 0.04),
           decoration: BoxDecoration(
-            color: isSelected ? Colors.white : Colors.grey[850],
+            color: backgroundColor,
             borderRadius: BorderRadius.circular(screenWidth * 0.02),
           ),
           child: Center(
             child: Text(
               etiket,
               style: textStyle?.copyWith(
-                color: isSelected ? Colors.black : Colors.white,
+                color: textColor,
               ),
             ),
           ),
@@ -248,7 +276,7 @@ class _AnaEkranState extends State<AnaEkran> {
 
   Widget yemekDetaySatiri(IconData icon, String baslik, String? detay) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6.0),
+      padding: const EdgeInsets.all(6.0),
       child: Row(
         children: [
           Icon(
@@ -270,7 +298,7 @@ class _AnaEkranState extends State<AnaEkran> {
             child: Text(
               detay ?? "Belirtilmedi",
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 12,
                 color: Colors.white70,
               ),
               overflow: TextOverflow.ellipsis,
